@@ -32,14 +32,14 @@
          (click)="startOverReset()">Start over</p>
     </div>
 
-    <div *ngIf="this.progress"> You have {{this.correctProductsArray.length}} valid products out of {{this.productsList.length}} products.
+    <div *ngIf="this.progress"> You have {{this.correctProductsArray.length}} valid products out of {{this.productsList?.length}} products.
       Please <span class="pointer link text-decoration-underline" (click)="showInvalidProducts = true;">click</span> here to check the other products</div>
 
 
 
 
-  <div *ngIf="submitted && f['file'].errors && !this.isDrag" class="text-danger font-14 position-absolute error-msg">
-      <p class="mb-0 mt-2" *ngIf="f['file'].errors['required']">CSV file is required</p>
+  <div *ngIf="submitted && this.bulkProductsForm.controls['file'].errors && !this.isDrag" class="text-danger font-14 position-absolute error-msg">
+      <p class="mb-0 mt-2" *ngIf="this.bulkProductsForm.controls['file'].errors['required']">CSV file is required</p>
     </div>
   </form>
 
@@ -53,14 +53,19 @@
     </div>
     <div formArrayName="productsControls">
       <div *ngFor="let productGroup of productsControls.controls; let i = index" [formGroupName]="i" class="product-group mb-4">
-
+{{productGroup.value | json}}
         <!-- Input fields for each attribute of the product -->
-        <input formControlName="productName" placeholder="Product Name">
-        <input formControlName="brandName" placeholder="Brand Name">
-        <input formControlName="quantity" placeholder="Quantity">
-        <input type="date" formControlName="deleveryDate"
-               id="deleveryDate" name="deleveryDate" #deleveryDateInput>
-        <input formControlName="email" placeholder="Email" >
+        <input formControlName="productName" placeholder="Product Name"
+        [ngClass]="{'red-border': !this.validateProductName( productGroup.value.productName)}">
+        <input formControlName="brandName" placeholder="Brand Name"
+               [ngClass]="{'red-border': !this.validateBrandName( productGroup.value.brandName)}">
+        <input formControlName="quantity" placeholder="Quantity"
+               [ngClass]="{'red-border': !this.validateQuantity( productGroup.value.quantity)}">
+        <input formControlName="deleveryDate" type="date"
+               [ngClass]="{'red-border': !this.validateDeliveryDate( productGroup.value.deleveryDate)}"
+               #deleveryDateInput>
+        <input formControlName="email" placeholder="Email"
+               [ngClass]="{'red-border': !this.validateEmail( productGroup.value.email)}">
       </div>
     </div>
 
