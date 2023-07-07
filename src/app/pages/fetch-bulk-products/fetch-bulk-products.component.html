@@ -1,0 +1,74 @@
+<div class="bulk-products container py-4 position-relative" *ngIf="showUploadForm">
+  <form [formGroup]="bulkProductsForm">
+    <div class="mx-auto file-box position-relative p-0" [ngClass]="{'prevent-pointer-event': progress === 100}">
+      <div class="drag-drop-container d-flex align-items-center" appDnd (fileDropped)="onFileDropped($event)">
+        <div class="w-100 pt-4 mt-3">
+          <input id="fileDropRef" (change)="onFileSelect($event)"
+                 type="file" name="file" class="form-control" formControlName="file"
+                 accept="text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+          <p class="text-danger" *ngIf="message !== ''">{{message}}</p>
+          <p class="pb-0 pb-lg-4 mb-0 mb-lg-3 text-center px-4" *ngIf="message === ''">
+            Drag and drop, or <span class="blue-text pointer">browse</span> your file</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 mr-auto" *ngIf="fileToProcess && showProcessing">
+      <div class="w-100">
+        <div class="info pb-1">
+          <h4>{{ fileToProcess.name }}</h4>
+          <div class="d-flex">
+          <div class="progress-cont align-self-center">
+            <div class="progress" [style.width]="progress + '%'"> </div>
+          </div>
+              <div class="px-3">{{progress + '%'}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="my-4">
+      <p [ngClass]="{'invisible': this.progress !== 100}"
+         class="pointer px-5 py-2 text-nowrap rounded border d-block d-lg-inline"
+         (click)="startOverReset()">Start over</p>
+    </div>
+
+    <div *ngIf="this.progress"> You have {{this.correctProductsArray.length}} valid products out of {{this.productsList.length}} products.
+      Please <span class="pointer link text-decoration-underline" (click)="showInvalidProducts = true;">click</span> here to check the other products</div>
+
+
+
+
+  <div *ngIf="submitted && f['file'].errors && !this.isDrag" class="text-danger font-14 position-absolute error-msg">
+      <p class="mb-0 mt-2" *ngIf="f['file'].errors['required']">CSV file is required</p>
+    </div>
+  </form>
+
+  <form [formGroup]="inValidProductsForm" *ngIf="showInvalidProducts" class="pb-5 my-5">
+    <div class="row bold mb-3">
+      <div class="col-md-2"><p class="table-label">Product Name</p></div>
+      <div class="col-md-2"><p class="table-label">Brand Name</p></div>
+      <div class="col-md-2"><p class="table-label">Quantity</p></div>
+      <div class="col-md-2"><p class="table-label">Delivery Date</p></div>
+      <div class="col-md-2"><p class="table-label">Email</p></div>
+    </div>
+    <div formArrayName="productsControls">
+      <div *ngFor="let productGroup of productsControls.controls; let i = index" [formGroupName]="i" class="product-group mb-4">
+
+        <!-- Input fields for each attribute of the product -->
+        <input formControlName="productName" placeholder="Product Name">
+        <input formControlName="brandName" placeholder="Brand Name">
+        <input formControlName="quantity" placeholder="Quantity">
+        <input type="date" formControlName="deleveryDate"
+               id="deleveryDate" name="deleveryDate" #deleveryDateInput>
+        <input formControlName="email" placeholder="Email" >
+      </div>
+    </div>
+
+    <div class="my-4">
+      <p class="pointer px-5 py-2 text-nowrap rounded border d-block d-lg-inline"
+         (click)="saveProducts()">Save</p>
+    </div>
+  </form>
+</div>
+
+
