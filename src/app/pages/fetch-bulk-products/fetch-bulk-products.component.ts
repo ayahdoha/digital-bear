@@ -234,7 +234,7 @@ export class FetchBulkProductsComponent implements OnInit {
   startOverReset():void {
     this.deleteFile();
     this.productsControls.clear();
-    this.submitting.next(true);
+    this.submitting.next(false);
     this.saveProductsMsg.next('');
     this.saveProductsMsgSuccessfully.next('');
     this.showCounters = false;
