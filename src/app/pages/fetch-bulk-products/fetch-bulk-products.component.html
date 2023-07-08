@@ -28,17 +28,23 @@
     </div>
     <div class="my-4">
       <p [ngClass]="{'invisible': this.progress !== 100}"
-         class="pointer px-5 py-2 text-nowrap rounded border d-block d-lg-inline"
+         class="pointer px-5 py-2 text-nowrap rounded border d-block d-lg-inline text-center"
          (click)="startOverReset()">Start over</p>
     </div>
+      <ng-container  *ngIf="this.progress">
+      <p> You have {{this.correctProductsArray.length}} valid products out of {{this.productsList?.length}} products.
+        Please <span class="pointer link text-decoration-underline" (click)="showInvalidProducts = true;">click</span> here to check the other products</p>
+      <p>Please notice the following:</p>
+        <ul>
+          <li>All fields are required</li>
+          <li>Quantity should be number</li>
+          <li>Delivery date must have this format 'MM/DD/YYYY'</li>
+          <li>You need to fill a correct email address</li>
+        </ul>
+    </ng-container>
 
-    <div *ngIf="this.progress"> You have {{this.correctProductsArray.length}} valid products out of {{this.productsList?.length}} products.
-      Please <span class="pointer link text-decoration-underline" (click)="showInvalidProducts = true;">click</span> here to check the other products</div>
 
-
-
-
-  <div *ngIf="submitted && this.bulkProductsForm.controls['file'].errors && !this.isDrag" class="text-danger font-14 position-absolute error-msg">
+  <div *ngIf="this.bulkProductsForm.controls['file'].errors && !this.isDrag" class="text-danger font-14 position-absolute error-msg">
       <p class="mb-0 mt-2" *ngIf="this.bulkProductsForm.controls['file'].errors['required']">CSV file is required</p>
     </div>
   </form>
@@ -52,27 +58,39 @@
       <div class="col-md-2"><p class="table-label">Email</p></div>
     </div>
     <div formArrayName="productsControls">
-      <div *ngFor="let productGroup of productsControls.controls; let i = index" [formGroupName]="i" class="product-group mb-4">
-{{productGroup.value | json}}
+      <div *ngFor="let productGroup of productsControls.controls; let i = index" [formGroupName]="i" class="row mb-4">
         <!-- Input fields for each attribute of the product -->
-        <input formControlName="productName" placeholder="Product Name"
-        [ngClass]="{'red-border': !this.validateProductName( productGroup.value.productName)}">
-        <input formControlName="brandName" placeholder="Brand Name"
-               [ngClass]="{'red-border': !this.validateBrandName( productGroup.value.brandName)}">
-        <input formControlName="quantity" placeholder="Quantity"
-               [ngClass]="{'red-border': !this.validateQuantity( productGroup.value.quantity)}">
-        <input formControlName="deleveryDate" type="date"
-               [ngClass]="{'red-border': !this.validateDeliveryDate( productGroup.value.deleveryDate)}"
-               #deleveryDateInput>
-        <input formControlName="email" placeholder="Email"
-               [ngClass]="{'red-border': !this.validateEmail( productGroup.value.email)}">
+        <div class="col-md-2">
+          <input formControlName="productName" placeholder="Product Name" class="form-control"
+                 [ngClass]="{'red-border': !this.validateProductName( productGroup.value.productName)}">
+        </div>
+        <div class="col-md-2">
+          <input formControlName="brandName" placeholder="Brand Name" class="form-control"
+                 [ngClass]="{'red-border': !this.validateBrandName( productGroup.value.brandName)}">
+        </div>
+        <div class="col-md-2">
+          <input formControlName="quantity" placeholder="Quantity" class="form-control"
+                 [ngClass]="{'red-border': !this.validateQuantity( productGroup.value.quantity)}">
+          </div>
+        <div class="col-md-2">
+          <input formControlName="deleveryDate" type="date" class="form-control"
+                 [ngClass]="{'red-border': !this.validateDeliveryDate( productGroup.value.deleveryDate)}"
+                 #deleveryDateInput>
+        </div>
+        <div class="col-md-2">
+          <input formControlName="email" placeholder="Email" class="form-control"
+                 [ngClass]="{'red-border': !this.validateEmail( productGroup.value.email)}">
+        </div>
+
       </div>
     </div>
 
     <div class="my-4">
-      <p class="pointer px-5 py-2 text-nowrap rounded border d-block d-lg-inline"
-         (click)="saveProducts()">Save</p>
+      <p class="pointer px-5 py-2 text-nowrap rounded border d-block d-lg-inline text-center m-progress"
+         (click)="saveProducts()" [ngClass]="{'m-progress': this.submitting | async}">Save</p>
     </div>
+    <p class="text-danger">{{this.saveProductsMsg | async}}</p>
+    <p class="text-success">{{this.saveProductsMsgSuccessfully | async}}</p>
   </form>
 </div>
 

@@ -16,12 +16,39 @@
     border-radius: 4px;
     padding: 0.9rem 4rem;
   }
-  .m-progress{
-    &:before {
-      background-image: url('../../../assets/ellipse_black.png');
-    }
-  }
 }
+.m-progress{
+  pointer-events: none;
+  position: relative;
+  color: transparent !important;
+  text-shadow: none !important;
+  &:before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    top: 50%;
+    left: 50%;
+    margin-top: -12px;
+    margin-left: -12px;
+    width: 26px;
+    height: 26px;
+    background-image: url('../../../assets/ellipse_black.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    -webkit-animation: ld 1s  infinite;
+    animation: ld 1s  infinite; }
+}
+@keyframes ld {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  } }
 .drag-drop-container{
   border: dashed 2px #5aa4e1;
 }

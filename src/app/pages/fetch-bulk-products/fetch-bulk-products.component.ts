@@ -1,11 +1,11 @@
 import { Component, OnInit,  ViewChild, ElementRef } from '@angular/core';
 import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
-import APIS from '../../../app/apis';
 import {Product} from "../../models/product.interface";
 import {ApiClientService} from "../../services/api-client.service";
 import {utils, read} from "xlsx";
 import {ImportFileService} from "../../services/import-file.service";
 import * as moment from 'moment';
+import {BehaviorSubject} from 'rxjs';
 const columnNames = ['ProductName' , 'BrandName', 'Quantity', 'DeleveryDate', 'Email'];
 @Component({
   selector: 'app-fetch-bulk-products',
@@ -14,16 +14,18 @@ const columnNames = ['ProductName' , 'BrandName', 'Quantity', 'DeleveryDate', 'E
 })
 export class FetchBulkProductsComponent implements OnInit {
   @ViewChild('deleveryDateInput', { static: false }) deleveryDateInput!: ElementRef<HTMLInputElement>;
-
+  saveProductsMsg = new BehaviorSubject<string>('');
+  saveProductsMsgSuccessfully = new BehaviorSubject<string>('');
+  submitting = new BehaviorSubject<boolean>(false);
   showProcessing:boolean = false;
   progress:number = 0;
   bulkProductsForm: FormGroup = new FormGroup({file: new FormControl('', [Validators.required])});
   inValidProductsForm: FormGroup = new FormGroup({});
-  submitted:boolean = false;
+
   data: any;
   errorMsg:string = '';
   fileUpload:boolean = false;
-  submitting:boolean = false;
+
   showUploadForm:boolean = true;
   showProcessingCSV:boolean = false;
   showCounters:boolean = false;
@@ -171,10 +173,15 @@ export class FetchBulkProductsComponent implements OnInit {
     const EMAIL_REGEXP = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
     return (email && EMAIL_REGEXP.test(email));
   }
-  async saveProducts(): Promise<void> {
+   saveProducts() {
+     this.submitting.next(true);
+     this.saveProductsMsg.next('');
+     this.saveProductsMsgSuccessfully.next('');
     if (!this.inValidProductsForm.valid) {
+      this.submitting.next(false);
+      this.saveProductsMsg.next('Please check invalid fields');
       console.log('invalid');
-      return ;
+      return;
     } else {
       this.correctProductsArray.forEach((element, index) => {
           element.deleveryDate = moment(element.deleveryDate, 'MM/DD/YYYY').toISOString();
@@ -182,8 +189,6 @@ export class FetchBulkProductsComponent implements OnInit {
       });
       console.log('Valid');
       const dateValue = this.deleveryDateInput.nativeElement.value;
-      //const date = new Date(dateValue);
-     // const isoDate = date.toISOString();
       const isoDate =  moment(dateValue).toISOString();
       console.log(isoDate);
       this.productsControls.controls.forEach((productGroup, index) => {
@@ -199,15 +204,27 @@ export class FetchBulkProductsComponent implements OnInit {
 
        let finalValidProductList = [...this.correctProductsArray, ...this.wrongProductsArray];
        try {
-         const result = await this.api.call({
-           path: APIS.IMPORT_PRODUCT_LIST,
-           method: 'POST',
-           data: {
-             files: finalValidProductList
+         let apiBody = {
+        files: finalValidProductList
+      };
+
+         this.api.importProductList(apiBody).subscribe(
+           (response) => {
+             // Handle the response data
+             this.submitting.next(false);
+             this.saveProductsMsgSuccessfully.next('Products saved successfully');
+             console.log(response);
+           },
+           (error) => {
+             // Handle any errors
+             this.submitting.next(false);
+             this.saveProductsMsg.next('Something went wrong');
+             console.error(error);
            }
-         });
-           console.log(result);
+         );
+
        } catch (e) {
+         this.submitting.next(false);
          console.log(e);
        }
     }
@@ -217,6 +234,9 @@ export class FetchBulkProductsComponent implements OnInit {
   startOverReset():void {
     this.deleteFile();
     this.productsControls.clear();
+    this.submitting.next(true);
+    this.saveProductsMsg.next('');
+    this.saveProductsMsgSuccessfully.next('');
     this.showCounters = false;
     this.showUploadForm = true;
     this.showFailedDetails = false;
@@ -227,7 +247,6 @@ export class FetchBulkProductsComponent implements OnInit {
   }
   deleteFile(): void{
     this.progress = 0;
-    this.submitted = false;
     this.fileToProcess = null;
     this.bulkProductsForm.get('file')?.setValue(null);
     this.bulkProductsForm.get('file')?.setValidators([Validators.required]);
