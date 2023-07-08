@@ -81,7 +81,7 @@
     </div>
 
     <div class="my-4">
-      <p class="pointer px-5 py-2 text-nowrap rounded border d-block d-lg-inline text-center m-progress"
+      <p class="pointer px-5 py-2 text-nowrap rounded border d-block d-lg-inline text-center"
          (click)="saveProducts()" [ngClass]="{'m-progress': this.submitting | async}">Save</p>
     </div>
     <p class="text-danger">{{this.saveProductsMsg | async}}</p>
