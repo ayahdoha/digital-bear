@@ -42,11 +42,6 @@
           <li>You need to fill a correct email address</li>
         </ul>
     </ng-container>
-
-
-  <div *ngIf="this.bulkProductsForm.controls['file'].errors && !this.isDrag" class="text-danger font-14 position-absolute error-msg">
-      <p class="mb-0 mt-2" *ngIf="this.bulkProductsForm.controls['file'].errors['required']">CSV file is required</p>
-    </div>
   </form>
 
   <form [formGroup]="inValidProductsForm" *ngIf="showInvalidProducts" class="pb-5 my-5">
